@@ -188,7 +188,7 @@ export function CityMap({
                 def={def}
                 status={propertyStatus(state, def)}
                 level={owned?.level ?? 1}
-                detail={cam.zoom >= 0.55}
+                detail={cam.zoom >= 0.42}
                 selected={selectedId === def.id}
                 onSelect={() => onSelect(def.id)}
                 onHover={(event) => showTip(event, def.id)}
