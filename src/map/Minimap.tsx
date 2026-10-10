@@ -26,7 +26,7 @@ export function Minimap({
           onFocus(worldX, worldY);
         }}
       >
-        <rect width={WORLD.width} height={WORLD.height} fill="#0d3e56" />
+        <rect width={WORLD.width} height={WORLD.height} fill="#1a8fbe" />
         <path d="M0,0 H3600 V1980 H2680 C2580,1960 2520,1900 2480,1860 H0 Z" fill="#d9d0c0" />
         {DISTRICTS.map((district) => (
           <rect
@@ -42,11 +42,12 @@ export function Minimap({
         <rect
           x={-cam.x / cam.zoom}
           y={-cam.y / cam.zoom}
-          width={viewW / cam.zoom}
-          height={viewH / cam.zoom}
-          fill="none"
+          width={Math.max(0, viewW) / cam.zoom}
+          height={Math.max(0, viewH) / cam.zoom}
+          fill="rgba(224, 177, 90, 0.14)"
           stroke="#e0b15a"
-          strokeWidth={18}
+          strokeWidth={2}
+          vectorEffect="non-scaling-stroke"
         />
       </svg>
     </div>

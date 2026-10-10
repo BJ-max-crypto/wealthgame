@@ -1,5 +1,8 @@
-export const MIN_ZOOM = 0.16;
+/** Low enough that a phone-width stage can still fit the full 3600px city. */
+export const MIN_ZOOM = 0.08;
 export const MAX_ZOOM = 2.6;
+/** World pixels that must stay inside the viewport while panning. */
+export const PAN_KEEP = 72;
 
 export interface Camera {
   x: number;
@@ -34,6 +37,25 @@ export function panBy(cam: Camera, dx: number, dy: number): Camera {
   return { ...cam, x: cam.x + dx, y: cam.y + dy };
 }
 
+function clampRange(value: number, min: number, max: number): number {
+  if (min > max) return (min + max) / 2;
+  return Math.min(max, Math.max(min, value));
+}
+
+/** Stop a pan or zoom from leaving the city entirely off the stage. */
+export function clampPan(cam: Camera, viewW: number, viewH: number, worldW: number, worldH: number): Camera {
+  if (viewW < 1 || viewH < 1) return cam;
+  const spanX = worldW * cam.zoom;
+  const spanY = worldH * cam.zoom;
+  const keepX = Math.min(PAN_KEEP, viewW * 0.5);
+  const keepY = Math.min(PAN_KEEP, viewH * 0.5);
+  return {
+    zoom: cam.zoom,
+    x: clampRange(cam.x, keepX - spanX, viewW - keepX),
+    y: clampRange(cam.y, keepY - spanY, viewH - keepY),
+  };
+}
+
 export function frameRect(viewW: number, viewH: number, rect: WorldRect, pad = 1.18): Camera {
   const zoom = clampZoom(Math.min(viewW / (rect.w * pad), viewH / (rect.h * pad)));
   const cx = rect.x + rect.w / 2;
@@ -50,19 +72,10 @@ export function fitWorld(viewW: number, viewH: number, worldW: number, worldH: n
 }
 
 /**
- * Fit the whole city, leaving room for the district chips when the city is
- * already height-limited. On a tall viewport the city is width-limited, so
- * shrinking it further only opens an empty band under the HUD.
+ * Fit the whole world, shoreline included, to the stage.
+ * The city and the viewport share one aspect, so this leaves only the
+ * remainder on the longer axis instead of letterboxing a reserved header.
  */
 export function fitCityView(viewW: number, viewH: number, worldW: number, worldH: number): Camera {
-  const chrome = viewW < 820 ? 132 : 96;
-  const full = fitWorld(viewW, viewH, worldW, worldH);
-  if (full.y >= chrome - 4) return full;
-  const inset = fitWorld(viewW, Math.max(220, viewH - chrome), worldW, worldH);
-  if (inset.zoom >= full.zoom - 0.0001) {
-    const cityBottom = full.y + worldH * full.zoom;
-    const shift = Math.min(Math.max(0, chrome - full.y), Math.max(0, viewH - cityBottom));
-    return { ...full, y: full.y + shift };
-  }
-  return { ...inset, y: inset.y + chrome };
+  return frameRect(viewW, viewH, { x: 0, y: 0, w: worldW, h: worldH }, 1);
 }

@@ -210,7 +210,7 @@ button { cursor: pointer; }
 
 .main { grid-area: main; position: relative; min-width: 0; min-height: 0; background: #0c6a96; }
 .city-shell, .city-stage { height: 100%; min-height: 0; }
-.city-stage { position: relative; overflow: hidden; background: #127eac; }
+.city-stage { position: relative; overflow: hidden; background: #0c6a96; }
 .city-svg { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; user-select: none; }
 .city-svg.is-panning { cursor: grabbing; }
 .scenery, .roads, .map-labels { pointer-events: none; }
@@ -222,17 +222,17 @@ button { cursor: pointer; }
 
 .map-top {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 168px;
+  top: 8px;
+  left: 8px;
+  right: 8px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
+  min-width: 0;
   pointer-events: none;
   z-index: 2;
 }
-.district-chips { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; pointer-events: auto; }
+.district-chips { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; min-width: 0; pointer-events: auto; }
 .district-chips button, .map-tools button {
   border: 1px solid rgba(255, 248, 236, 0.2);
   background: rgba(22, 29, 39, 0.88);
@@ -244,8 +244,9 @@ button { cursor: pointer; }
 .district-chips button:hover, .map-tools button:hover { border-color: var(--gold); }
 .objective {
   margin: 0;
-  max-width: min(560px, 100%);
-  padding: 7px 10px 7px 12px;
+  flex: 1 1 160px;
+  min-width: 0;
+  padding: 6px 10px 6px 12px;
   background: rgba(22, 29, 39, 0.92);
   color: #f4efe6;
   border-left: 3px solid var(--gold);
@@ -257,23 +258,24 @@ button { cursor: pointer; }
   text-overflow: ellipsis;
 }
 .map-tools {
-  position: absolute;
-  left: 12px;
-  bottom: 158px;
+  position: relative;
   z-index: 3;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 6px;
-  align-items: stretch;
+  align-items: center;
+  margin-left: auto;
+  flex: 0 0 auto;
+  pointer-events: auto;
 }
-.map-tools button { min-width: 42px; font-weight: 650; }
-.zoom-readout { color: #f4efe6; font-size: 11px; text-align: center; font-variant-numeric: tabular-nums; }
+.map-tools button { min-width: 36px; font-weight: 650; }
+.zoom-readout { color: #f4efe6; font-size: 11px; text-align: center; font-variant-numeric: tabular-nums; min-width: 36px; }
 .minimap-wrap {
   position: absolute;
   left: 12px;
   bottom: 12px;
   z-index: 3;
-  width: 188px;
+  width: 168px;
   background: rgba(16, 24, 32, 0.88);
   border: 1px solid rgba(224, 177, 90, 0.45);
   padding: 4px;
@@ -287,31 +289,35 @@ button { cursor: pointer; }
   white-space: nowrap;
 }
 .district-label {
-  color: rgba(28, 36, 48, 0.72);
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  color: #1c2430;
+  background: rgba(246, 241, 231, 0.92);
+  border: 1px solid rgba(28, 36, 48, 0.14);
+  padding: 0.18em 0.55em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 650;
+  line-height: 1.2;
 }
 .water-label {
-  color: rgba(247, 244, 238, 0.78);
+  color: rgba(247, 244, 238, 0.9);
   font-family: var(--serif);
-  font-size: 22px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(8, 32, 48, 0.35);
 }
 .place-label, .road-label {
-  color: rgba(36, 44, 56, 0.72);
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  color: #1c2430;
+  background: rgba(246, 241, 231, 0.88);
+  padding: 0.12em 0.4em;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
 }
+.road-label.is-vertical { writing-mode: vertical-rl; }
 .building-label {
   color: #1c2430;
   background: rgba(247, 244, 238, 0.88);
-  font-size: 11px;
-  padding: 1px 4px;
-  transform-origin: center bottom;
-  translate: -50% -120%;
+  padding: 0.12em 0.35em;
+  line-height: 1.2;
 }
 .map-tip {
   position: absolute;
@@ -496,10 +502,9 @@ button { cursor: pointer; }
   .hud-stats .stat:nth-child(1),
   .hud-stats .stat:nth-child(5) { display: none; }
   .hud-stats .stat:nth-child(2) { border-left: 0; padding-left: 0; }
-  .map-tools { left: auto; right: 10px; top: 10px; bottom: auto; flex-direction: row; align-items: center; }
+  .map-top { flex-wrap: wrap; }
+  .objective { flex-basis: 100%; white-space: normal; }
   .minimap-wrap { display: none; }
-  .map-top { right: 10px; top: 52px; }
-  .objective { white-space: normal; }
   .toast { left: 12px; right: 12px; bottom: 18px; max-width: none; }
   .panel { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 46%; }
   .screen { padding: 18px 14px 32px; }
