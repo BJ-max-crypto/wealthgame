@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import { BUILDINGS } from '../data/buildings';
 import { DISTRICTS, WORLD } from '../data/layout';
-import { fitCityView, frameRect, panBy, zoomAt, type Camera, type WorldRect } from '../game/camera';
+import { clampPan, fitCityView, frameRect, panBy, zoomAt, type Camera, type WorldRect } from '../game/camera';
 import { districtLabel, formatMoney, propertyStatus } from '../game/economy';
 import type { GameState, Ownership } from '../game/types';
 import { BuildingGraphic } from './art';
@@ -14,11 +14,24 @@ function fitCity(viewW: number, viewH: number): Camera {
   return fitCityView(viewW, viewH, WORLD.width, WORLD.height);
 }
 
-const ROAD_LABELS = [
-  { name: 'Broadway', x: 220, y: 676 },
-  { name: 'Market Street', x: 220, y: 1250 },
-  { name: 'Harbor Road', x: 220, y: 1788 },
-  { name: 'Main Street', x: 1796, y: 250 },
+function settle(cam: Camera, viewW: number, viewH: number): Camera {
+  return clampPan(cam, viewW, viewH, WORLD.width, WORLD.height);
+}
+
+function labelStyle(cam: Camera, x: number, y: number, size: number): CSSProperties {
+  return {
+    left: cam.x + x * cam.zoom,
+    top: cam.y + y * cam.zoom,
+    fontSize: size * cam.zoom,
+    transform: 'translate(-50%, -50%)',
+  };
+}
+
+const ROAD_LABELS: Array<{ name: string; x: number; y: number; vertical: boolean }> = [
+  { name: 'Broadway', x: 280, y: 680, vertical: false },
+  { name: 'Market Street', x: 1680, y: 1252, vertical: false },
+  { name: 'Harbor Road', x: 1500, y: 1789, vertical: false },
+  { name: 'Main Street', x: 1792, y: 400, vertical: true },
 ];
 
 function statusLine(status: Ownership, price: number, rival?: string): string {
@@ -40,6 +53,7 @@ export function CityMap({
   const stageRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
   const moved = useRef(false);
+  const userAdjusted = useRef(false);
   const [cam, setCam] = useState<Camera>({ x: 0, y: 0, zoom: 0.32 });
   const [view, setView] = useState({ w: 960, h: 640 });
   const [smooth, setSmooth] = useState(false);
@@ -49,28 +63,17 @@ export function CityMap({
   useLayoutEffect(() => {
     const el = stageRef.current;
     if (!el) return;
-    const fit = () => {
+    const applySize = () => {
       const bounds = el.getBoundingClientRect();
-      if (bounds.width < 40 || bounds.height < 40) return false;
+      if (bounds.width < 40 || bounds.height < 40) return;
       setView({ w: bounds.width, h: bounds.height });
-      setCam(fitCity(bounds.width, bounds.height));
-      return true;
+      setSmooth(false);
+      setCam((current) =>
+        userAdjusted.current ? settle(current, bounds.width, bounds.height) : fitCity(bounds.width, bounds.height),
+      );
     };
-    if (fit()) return;
-    const observer = new ResizeObserver(() => {
-      if (fit()) observer.disconnect();
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => {
-      const bounds = el.getBoundingClientRect();
-      setView({ w: bounds.width, h: bounds.height });
-    });
+    applySize();
+    const observer = new ResizeObserver(applySize);
     observer.observe(el);
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
@@ -78,8 +81,15 @@ export function CityMap({
       const delta =
         event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * bounds.height : event.deltaY;
       const factor = Math.exp(-delta * 0.0014);
+      userAdjusted.current = true;
       setSmooth(false);
-      setCam((current) => zoomAt(current, event.clientX - bounds.left, event.clientY - bounds.top, current.zoom * factor));
+      setCam((current) =>
+        settle(
+          zoomAt(current, event.clientX - bounds.left, event.clientY - bounds.top, current.zoom * factor),
+          bounds.width,
+          bounds.height,
+        ),
+      );
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => {
@@ -92,14 +102,16 @@ export function CityMap({
     const el = stageRef.current;
     if (!el) return;
     const bounds = el.getBoundingClientRect();
+    userAdjusted.current = true;
     setSmooth(true);
-    setCam(frameRect(bounds.width, bounds.height, rect, pad));
+    setCam(settle(frameRect(bounds.width, bounds.height, rect, pad), bounds.width, bounds.height));
   }
 
   function resetView() {
     const el = stageRef.current;
     if (!el) return;
     const bounds = el.getBoundingClientRect();
+    userAdjusted.current = false;
     setSmooth(true);
     setCam(fitCity(bounds.width, bounds.height));
   }
@@ -108,8 +120,11 @@ export function CityMap({
     const el = stageRef.current;
     if (!el) return;
     const bounds = el.getBoundingClientRect();
+    userAdjusted.current = true;
     setSmooth(true);
-    setCam((current) => zoomAt(current, bounds.width / 2, bounds.height / 2, current.zoom * factor));
+    setCam((current) =>
+      settle(zoomAt(current, bounds.width / 2, bounds.height / 2, current.zoom * factor), bounds.width, bounds.height),
+    );
   }
 
   function onPointerDown(event: ReactPointerEvent<SVGSVGElement>) {
@@ -129,7 +144,8 @@ export function CityMap({
     moved.current = true;
     drag.current = { x: event.clientX, y: event.clientY };
     setTip(null);
-    setCam((current) => panBy(current, dx, dy));
+    userAdjusted.current = true;
+    setCam((current) => settle(panBy(current, dx, dy), view.w, view.h));
   }
 
   function onPointerUp(event: ReactPointerEvent<SVGSVGElement>) {
@@ -212,19 +228,18 @@ export function CityMap({
             Trade first, then buy Night Owl Market for $580. Coffee and steel are below their usual prices.
           </p>
         )}
-      </div>
-
-      <div className="map-tools">
-        <button type="button" data-testid="zoom-in" onClick={() => zoomBy(1.2)} aria-label="Zoom in">
-          +
-        </button>
-        <span className="zoom-readout">{Math.round(cam.zoom * 100)}%</span>
-        <button type="button" data-testid="zoom-out" onClick={() => zoomBy(1 / 1.2)} aria-label="Zoom out">
-          −
-        </button>
-        <button type="button" data-testid="zoom-reset" onClick={resetView} aria-label="Reset to city view">
-          City
-        </button>
+        <div className="map-tools">
+          <button type="button" data-testid="zoom-in" onClick={() => zoomBy(1.2)} aria-label="Zoom in">
+            +
+          </button>
+          <span className="zoom-readout">{Math.round(cam.zoom * 100)}%</span>
+          <button type="button" data-testid="zoom-out" onClick={() => zoomBy(1 / 1.2)} aria-label="Zoom out">
+            −
+          </button>
+          <button type="button" data-testid="zoom-reset" onClick={resetView} aria-label="Reset to city view">
+            City
+          </button>
+        </div>
       </div>
 
       <Minimap
@@ -235,39 +250,25 @@ export function CityMap({
       />
 
       <div className="map-labels" aria-hidden="true">
-        {cam.zoom < 1.15 &&
+        {cam.zoom >= 0.2 &&
+          cam.zoom < 1.15 &&
           DISTRICTS.map((district) => (
-            <span
-              key={district.id}
-              className="district-label"
-              style={{
-                transform: `translate(${cam.x + district.label.x * cam.zoom}px, ${cam.y + district.label.y * cam.zoom}px)`,
-              }}
-            >
+            <span key={district.id} className="district-label" style={labelStyle(cam, district.label.x, district.label.y, 34)}>
               {district.name}
             </span>
           ))}
-        {cam.zoom < 0.85 && (
-          <span
-            className="water-label"
-            style={{ transform: `translate(${cam.x + 860 * cam.zoom}px, ${cam.y + 2060 * cam.zoom}px)` }}
-          >
+        {cam.zoom >= 0.2 && cam.zoom < 0.85 && (
+          <span className="water-label" style={labelStyle(cam, 1280, 2088, 56)}>
             Asher Bay
           </span>
         )}
         {cam.zoom >= 0.55 && cam.zoom < 1.5 && (
-          <span
-            className="place-label"
-            style={{ transform: `translate(${cam.x + 2140 * cam.zoom}px, ${cam.y + 1164 * cam.zoom}px)` }}
-          >
+          <span className="place-label" style={labelStyle(cam, 2140, 1124, 28)}>
             Exchange Square
           </span>
         )}
-        {cam.zoom < 1.15 && (
-          <span
-            className="place-label"
-            style={{ transform: `translate(${cam.x + 2860 * cam.zoom}px, ${cam.y + 180 * cam.zoom}px)` }}
-          >
+        {cam.zoom >= 0.2 && cam.zoom < 1.15 && (
+          <span className="place-label" style={labelStyle(cam, 3280, 500, 28)}>
             North Bluff
           </span>
         )}
@@ -275,8 +276,8 @@ export function CityMap({
           ROAD_LABELS.map((road) => (
             <span
               key={road.name}
-              className="road-label"
-              style={{ transform: `translate(${cam.x + road.x * cam.zoom}px, ${cam.y + road.y * cam.zoom}px)` }}
+              className={road.vertical ? 'road-label is-vertical' : 'road-label'}
+              style={labelStyle(cam, road.x, road.y, 26)}
             >
               {road.name}
             </span>
@@ -287,7 +288,8 @@ export function CityMap({
               key={def.id}
               className="building-label"
               style={{
-                transform: `translate(${cam.x + (def.x + def.w / 2) * cam.zoom}px, ${cam.y + def.y * cam.zoom}px)`,
+                ...labelStyle(cam, def.x + def.w / 2, def.y, 22),
+                transform: 'translate(-50%, -120%)',
               }}
             >
               {def.short}

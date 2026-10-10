@@ -252,7 +252,7 @@ export function Scenery() {
           ))}
         </g>
       ))}
-      <g transform="translate(280 1960)">
+      <g transform="translate(560 1960)">
         <ellipse cx={250} cy={48} rx={250} ry={18} fill="#083044" opacity={0.28} />
         <path d="M20,40 C80,16 400,16 470,40 C484,48 484,62 470,68 C400,90 80,90 20,68 C6,62 6,48 20,40 Z" fill="#b4332c" />
         <path d="M40,40 C100,28 390,28 450,40 L450,52 C390,40 100,40 40,52 Z" fill="#8d241e" />

@@ -58,7 +58,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 2368,
     h: 524,
     color: '#e3d7c2',
-    label: { x: 480, y: 600 },
+    label: { x: 1350, y: 680 },
   },
   {
     id: 'commercial',
@@ -69,7 +69,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 1628,
     h: 468,
     color: '#efe2ce',
-    label: { x: 430, y: 1148 },
+    label: { x: 560, y: 1252 },
   },
   {
     id: 'industrial',
@@ -80,7 +80,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 1628,
     h: 444,
     color: '#d5d2cb',
-    label: { x: 1480, y: 1688 },
+    label: { x: 1100, y: 1789 },
   },
   {
     id: 'port',
@@ -91,7 +91,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 644,
     h: 780,
     color: '#d4cec2',
-    label: { x: 2140, y: 2140 },
+    label: { x: 1680, y: 2110 },
   },
   {
     id: 'waterfront',
@@ -102,7 +102,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 960,
     h: 1860,
     color: '#d5e3c8',
-    label: { x: 2740, y: 1700 },
+    label: { x: 3340, y: 1080 },
   },
 ];
 
