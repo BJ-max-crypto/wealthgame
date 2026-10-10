@@ -49,7 +49,7 @@ export function ContractsView() {
                 disabled={!unlocked}
                 onClick={() => dispatch({ type: 'fulfill_contract', id: contract.id })}
               >
-                {unlocked ? (ready ? 'Fulfill' : 'Fulfill') : 'Needs a port'}
+                {unlocked ? (ready ? 'Fulfill' : 'Short on goods') : 'Needs a port'}
               </button>
             </article>
           );

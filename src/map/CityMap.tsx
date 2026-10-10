@@ -8,7 +8,7 @@ import type { GameState, Ownership } from '../game/types';
 import { BuildingGraphic } from './art';
 import { Minimap } from './Minimap';
 import { Roads } from './roads';
-import { MapDefs, Scenery } from './scenery';
+import { MapDefs, Scenery, Traffic } from './scenery';
 
 function fitCity(viewW: number, viewH: number): Camera {
   return fitCityView(viewW, viewH, WORLD.width, WORLD.height);
@@ -179,6 +179,7 @@ export function CityMap({
           <rect width={WORLD.width} height={WORLD.height} fill="transparent" />
           <Scenery />
           <Roads />
+          <Traffic />
           {BUILDINGS.map((def) => {
             const owned = state.owned.find((entry) => entry.id === def.id);
             return (
@@ -187,6 +188,7 @@ export function CityMap({
                 def={def}
                 status={propertyStatus(state, def)}
                 level={owned?.level ?? 1}
+                detail={cam.zoom >= 0.55}
                 selected={selectedId === def.id}
                 onSelect={() => onSelect(def.id)}
                 onHover={(event) => showTip(event, def.id)}

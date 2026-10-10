@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { PARKING, WORLD, type ParkingLot } from '../data/layout';
 
 function Tree({ x, y, r, variant }: { x: number; y: number; r: number; variant: number }) {
@@ -156,18 +157,18 @@ export function Scenery() {
         strokeWidth={5}
         opacity={0.55}
       />
-      <path d="M120,1930 C420,1908 760,1955 1100,1928 C1500,1898 1680,1948 1900,1932" fill="none" stroke="#ffffff" strokeOpacity={0.18} strokeWidth={2} />
-      <path d="M80,2060 C400,2036 820,2088 1200,2052 C1600,2020 2000,2076 2360,2048" fill="none" stroke="#ffffff" strokeOpacity={0.14} strokeWidth={2} />
-      <path d="M2500,2088 C2800,2064 3100,2110 3400,2080" fill="none" stroke="#ffffff" strokeOpacity={0.16} strokeWidth={2} />
+      <path className="water-shimmer" d="M120,1930 C420,1908 760,1955 1100,1928 C1500,1898 1680,1948 1900,1932" fill="none" stroke="#ffffff" strokeOpacity={0.22} strokeWidth={2} />
+      <path className="water-shimmer" d="M80,2060 C400,2036 820,2088 1200,2052 C1600,2020 2000,2076 2360,2048" fill="none" stroke="#ffffff" strokeOpacity={0.16} strokeWidth={2} />
+      <path className="water-shimmer" d="M2500,2088 C2800,2064 3100,2110 3400,2080" fill="none" stroke="#ffffff" strokeOpacity={0.18} strokeWidth={2} />
 
-      <rect x={116} y={102} width={2360} height={520} fill="#e3d7c2" />
-      <rect x={116} y={736} width={1628} height={468} fill="#efe2ce" />
-      <rect x={1848} y={748} width={636} height={456} fill="#dce8d2" />
-      <rect x={116} y={1300} width={1628} height={444} fill="#d5d2cb" />
-      <rect x={1840} y={1300} width={644} height={448} fill="#d4cec2" />
-      <rect x={2572} y={102} width={960} height={522} fill="#d5e3c8" />
-      <rect x={2572} y={736} width={960} height={468} fill="#d7e6cb" />
-      <rect x={2572} y={1300} width={960} height={540} fill="#d3e2c6" />
+      <rect x={116} y={102} width={2360} height={520} fill="#e6d8c2" />
+      <rect x={116} y={736} width={1628} height={468} fill="#f1e3cc" />
+      <rect x={1848} y={748} width={636} height={456} fill="#dce8d4" />
+      <rect x={116} y={1300} width={1628} height={444} fill="#d4d1c9" />
+      <rect x={1840} y={1300} width={644} height={448} fill="#d2cdc3" />
+      <rect x={2572} y={102} width={960} height={522} fill="#d5e4ca" />
+      <rect x={2572} y={736} width={960} height={468} fill="#d8e7cd" />
+      <rect x={2572} y={1300} width={960} height={540} fill="#d2e3c8" />
 
       <path d="M2520,1848 C2640,1908 2780,1976 3120,1988 H3600 V1888 H2556 C2540,1872 2528,1860 2520,1848 Z" fill="url(#sandGrad)" />
 
@@ -285,6 +286,47 @@ export function Scenery() {
       ))}
       {Array.from({ length: 8 }, (_, index) => (
         <Lamp key={`c${index}`} x={2620 + index * 110} y={1830} />
+      ))}
+    </g>
+  );
+}
+
+function useMotion(): boolean {
+  const [motion, setMotion] = useState(true);
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setMotion(!query.matches);
+    apply();
+    query.addEventListener('change', apply);
+    return () => query.removeEventListener('change', apply);
+  }, []);
+  return motion;
+}
+
+const LANES = [
+  { id: 'broadway-east', from: 180, to: 2460, y: 654, color: '#e7ebef', dur: '46s', rot: 90 },
+  { id: 'broadway-west', from: 2400, to: 200, y: 702, color: '#c4493a', dur: '52s', rot: -90 },
+  { id: 'market-east', from: 220, to: 1680, y: 1250, color: '#2f4c5c', dur: '40s', rot: 90 },
+];
+
+export function Traffic() {
+  const motion = useMotion();
+  return (
+    <g className="traffic" pointerEvents="none">
+      {LANES.map((lane) => (
+        <g key={lane.id} transform={motion ? undefined : `translate(${(lane.from + lane.to) / 2} ${lane.y})`}>
+          {motion && (
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              from={`${lane.from} ${lane.y}`}
+              to={`${lane.to} ${lane.y}`}
+              dur={lane.dur}
+              repeatCount="indefinite"
+            />
+          )}
+          <Car x={0} y={0} rot={lane.rot} color={lane.color} />
+        </g>
       ))}
     </g>
   );

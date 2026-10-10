@@ -111,10 +111,18 @@ export function Roads() {
         />
       ))}
       {H_ROADS.map((road) => (
-        <rect key={road.id} x={road.x1} y={road.y} width={road.x2 - road.x1} height={road.w} fill="#3e4654" />
+        <g key={road.id}>
+          <rect x={road.x1} y={road.y} width={road.x2 - road.x1} height={road.w} fill="#3a4250" />
+          <rect x={road.x1} y={road.y} width={road.x2 - road.x1} height={2} fill="#5c6572" />
+          <rect x={road.x1} y={road.y + road.w - 2} width={road.x2 - road.x1} height={2} fill="#2a313c" />
+        </g>
       ))}
       {V_ROADS.map((road) => (
-        <rect key={road.id} x={road.x} y={road.y1} width={road.w} height={road.y2 - road.y1} fill="#3e4654" />
+        <g key={road.id}>
+          <rect x={road.x} y={road.y1} width={road.w} height={road.y2 - road.y1} fill="#3a4250" />
+          <rect x={road.x} y={road.y1} width={2} height={road.y2 - road.y1} fill="#5c6572" />
+          <rect x={road.x + road.w - 2} y={road.y1} width={2} height={road.y2 - road.y1} fill="#2a313c" />
+        </g>
       ))}
       {median.map(([x1, x2], index) => (
         <g key={`median-${index}`}>

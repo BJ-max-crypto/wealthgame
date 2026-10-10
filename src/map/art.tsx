@@ -34,6 +34,7 @@ function Windows({
   h,
   cols,
   rows,
+  detail,
 }: {
   id: string;
   x: number;
@@ -42,7 +43,17 @@ function Windows({
   h: number;
   cols: number;
   rows: number;
+  detail: boolean;
 }) {
+  if (!detail) {
+    return (
+      <g>
+        <rect x={x + 4} y={y + h * 0.18} width={w - 8} height={Math.max(3, h * 0.16)} fill="#102834" />
+        <rect x={x + 4} y={y + h * 0.48} width={w - 8} height={Math.max(3, h * 0.16)} fill="#102834" />
+        <rect x={x + w * 0.18} y={y + h * 0.2} width={Math.max(4, w * 0.1)} height={Math.max(3, h * 0.12)} fill="#f3d7a2" />
+      </g>
+    );
+  }
   const gapX = Math.max(2, w * 0.045);
   const gapY = Math.max(2, h * 0.1);
   const cellW = (w - gapX * (cols + 1)) / cols;
@@ -68,7 +79,7 @@ function Windows({
   return <g>{cells}</g>;
 }
 
-function OfficeArt({ def, heli = false }: { def: BuildingDef; heli?: boolean }) {
+function OfficeArt({ def, heli = false, detail }: { def: BuildingDef; heli?: boolean; detail: boolean }) {
   const { w, h, accent, id } = def;
   const margin = 14;
   const width = w - margin * 2;
@@ -94,14 +105,14 @@ function OfficeArt({ def, heli = false }: { def: BuildingDef; heli?: boolean }) 
         </g>
       )}
       <rect x={margin} y={14 + roofH} width={width} height={faceH} fill="#1a3142" />
-      <Windows id={id} x={margin} y={14 + roofH} w={width} h={faceH - 8} cols={cols} rows={rows} />
+      <Windows id={id} x={margin} y={14 + roofH} w={width} h={faceH - 8} cols={cols} rows={rows} detail={detail} />
       <rect x={margin + width / 2 - 10} y={14 + roofH + faceH - 14} width={20} height={14} fill="#c6a15a" />
       <rect x={margin + 8} y={h - 18} width={width - 16} height={6} fill="#d9d0c2" />
     </g>
   );
 }
 
-function LoftArt({ def }: { def: BuildingDef }) {
+function LoftArt({ def, detail }: { def: BuildingDef; detail: boolean }) {
   const { w, h, id } = def;
   return (
     <g>
@@ -110,14 +121,14 @@ function LoftArt({ def }: { def: BuildingDef }) {
       <rect x={18} y={16} width={w - 36} height={8} fill="#c47860" />
       <rect x={w * 0.62} y={24} width={22} height={12} fill="#8d99a3" />
       <rect x={18} y={16 + h * 0.46} width={w - 36} height={h * 0.28} fill="#f3e6d4" />
-      <Windows id={id} x={18} y={16 + h * 0.46} w={w - 36} h={h * 0.28} cols={4} rows={2} />
+      <Windows id={id} x={18} y={16 + h * 0.46} w={w - 36} h={h * 0.28} cols={4} rows={2} detail={detail} />
       <rect x={w / 2 - 10} y={16 + h * 0.68} width={20} height={12} fill="#5c4636" />
       <rect x={28} y={h - 22} width={w - 56} height={8} fill="#ded3c2" />
     </g>
   );
 }
 
-function HeadquartersArt({ def }: { def: BuildingDef }) {
+function HeadquartersArt({ def, detail }: { def: BuildingDef; detail: boolean }) {
   const { w, h } = def;
   const left = 28;
   const top = 18;
@@ -147,14 +158,14 @@ function HeadquartersArt({ def }: { def: BuildingDef }) {
       <circle cx={left + width / 2} cy={top + height * 0.9} r={10} fill="#1b3550" />
       <rect x={left + width * 0.7} y={top - 10} width={3} height={22} fill="#5c6570" />
       <polygon points={`${left + width * 0.7},8 ${left + width * 0.7 + 16},12 ${left + width * 0.7},16`} fill="#c6a15a" />
-      <Windows id="apex-left" x={left + 6} y={top + height * 0.3} w={width * 0.28 - 12} h={height * 0.42} cols={3} rows={4} />
-      <Windows id="apex-right" x={left + width * 0.72 + 6} y={top + height * 0.3} w={width * 0.28 - 12} h={height * 0.42} cols={3} rows={4} />
-      <Windows id="apex-center" x={left + width * 0.24} y={top + height * 0.36} w={width * 0.52} h={height * 0.28} cols={6} rows={3} />
+      <Windows id="apex-left" x={left + 6} y={top + height * 0.3} w={width * 0.28 - 12} h={height * 0.42} cols={3} rows={4} detail={detail} />
+      <Windows id="apex-right" x={left + width * 0.72 + 6} y={top + height * 0.3} w={width * 0.28 - 12} h={height * 0.42} cols={3} rows={4} detail={detail} />
+      <Windows id="apex-center" x={left + width * 0.24} y={top + height * 0.36} w={width * 0.52} h={height * 0.28} cols={6} rows={3} detail={detail} />
     </g>
   );
 }
 
-function ShopArt({ def }: { def: BuildingDef }) {
+function ShopArt({ def, detail }: { def: BuildingDef; detail: boolean }) {
   const { w, h, accent, short, id } = def;
   const margin = 14;
   const bw = w - margin * 2;
@@ -170,14 +181,14 @@ function ShopArt({ def }: { def: BuildingDef }) {
       <rect x={margin + bw * 0.62} y={18} width={18} height={10} fill="#9aa4ad" />
       <rect x={margin + bw * 0.2} y={20} width={22} height={8} fill="#b9aa96" />
       <rect x={margin} y={12 + roofH} width={bw} height={faceH} fill="#fbf6ee" />
-      <rect x={margin - 4} y={12 + roofH - 2} width={bw + 8} height={16} fill={accent} />
+      <rect x={margin - 4} y={12 + roofH - 6} width={bw + 8} height={22} fill={accent} />
       {Array.from({ length: stripes }, (_, index) => (
         <rect
           key={index}
           x={margin - 2 + index * stripeW}
-          y={12 + roofH - 2}
+          y={12 + roofH - 6}
           width={Math.max(1, stripeW - 1.5)}
-          height={16}
+          height={22}
           fill={index % 2 === 0 ? accent : '#f6f1e8'}
         />
       ))}
@@ -192,7 +203,7 @@ function ShopArt({ def }: { def: BuildingDef }) {
       >
         {short}
       </text>
-      <Windows id={id} x={margin + 8} y={20 + roofH} w={bw * 0.62} h={faceH - 16} cols={2} rows={1} />
+      <Windows id={id} x={margin + 8} y={20 + roofH} w={bw * 0.62} h={faceH - 16} cols={2} rows={1} detail={detail} />
       <rect x={margin + bw * 0.74} y={18 + roofH} width={bw * 0.16} height={faceH - 10} fill="#6b4a32" />
       <rect x={12} y={12 + roofH + faceH + 8} width={w - 24} height={h - (12 + roofH + faceH + 18)} fill="#5d6672" />
       {Array.from({ length: 4 }, (_, index) => (
@@ -250,7 +261,7 @@ function FactoryArt({ def }: { def: BuildingDef }) {
     <g>
       <rect width={w} height={h} fill="#ddd9d1" />
       <ellipse cx={w / 2} cy={h - 8} rx={w * 0.36} ry={7} fill="#1a2430" opacity={0.12} />
-      <path d={saw} fill="#8b919a" />
+      <path d={saw} fill="#6f767f" />
       <path d={saw} fill="none" stroke="#6d737c" strokeWidth={2} />
       <rect x={w * 0.72} y={8} width={16} height={h * 0.36} fill="#5c636c" />
       <rect x={w * 0.7} y={6} width={22} height={6} fill="#3e444c" />
@@ -375,14 +386,14 @@ function CraneArt({ def }: { def: BuildingDef }) {
   );
 }
 
-function MarinaArt({ def }: { def: BuildingDef }) {
+function MarinaArt({ def, detail }: { def: BuildingDef; detail: boolean }) {
   const { w, h, accent } = def;
   return (
     <g>
       <rect width={w} height={h} fill="#e7f2e4" />
       <rect x={16} y={16} width={w - 32} height={h * 0.48} fill="#f7f4ee" />
       <rect x={16} y={16} width={w - 32} height={h * 0.16} fill={accent} />
-      <Windows id={def.id} x={24} y={20 + h * 0.16} w={w - 48} h={h * 0.26} cols={4} rows={1} />
+      <Windows id={def.id} x={24} y={20 + h * 0.16} w={w - 48} h={h * 0.26} cols={4} rows={1} detail={detail} />
       <rect x={18} y={h * 0.68} width={w - 36} height={h * 0.2} fill="#8d6a43" />
       {Array.from({ length: 4 }, (_, index) => (
         <circle key={index} cx={36 + index * ((w - 70) / 3)} cy={h * 0.78} r={5} fill="#f4efe6" />
@@ -457,16 +468,32 @@ function ResortArt({ def }: { def: BuildingDef }) {
   );
 }
 
-function renderArt(def: BuildingDef) {
+function LevelMark({ w, level }: { w: number; level: number }) {
+  if (level < 2) return null;
+  const x = Math.max(8, w / 2 - 11);
+  return (
+    <g aria-hidden="true">
+      <rect x={x} y={5} width={22} height={4} fill="#c6a15a" />
+      {level >= 3 && (
+        <g>
+          <rect x={x + 5} y={-7} width={12} height={12} fill="#243140" />
+          <rect x={x + 9} y={-13} width={2} height={7} fill="#5c6570" />
+        </g>
+      )}
+    </g>
+  );
+}
+
+function renderArt(def: BuildingDef, detail: boolean) {
   switch (def.art) {
     case 'loft':
-      return <LoftArt def={def} />;
+      return <LoftArt def={def} detail={detail} />;
     case 'office':
-      return <OfficeArt def={def} heli={def.id === 'harborview-tower'} />;
+      return <OfficeArt def={def} heli={def.id === 'harborview-tower'} detail={detail} />;
     case 'hq':
-      return <HeadquartersArt def={def} />;
+      return <HeadquartersArt def={def} detail={detail} />;
     case 'shop':
-      return <ShopArt def={def} />;
+      return <ShopArt def={def} detail={detail} />;
     case 'diner':
       return <DinerArt def={def} />;
     case 'factory':
@@ -480,7 +507,7 @@ function renderArt(def: BuildingDef) {
     case 'crane':
       return <CraneArt def={def} />;
     case 'marina':
-      return <MarinaArt def={def} />;
+      return <MarinaArt def={def} detail={detail} />;
     case 'restaurant':
       return <RestaurantArt def={def} />;
     case 'boats':
@@ -497,10 +524,31 @@ const STATUS_COLOR: Record<Ownership, string> = {
   locked: '#8b919a',
 };
 
+function StatusMark({ status, w }: { status: Ownership; w: number }) {
+  const size = 26;
+  const x = w - size - 7;
+  const y = 7;
+  return (
+    <g aria-hidden="true">
+      <rect x={x} y={y} width={size} height={size} fill={STATUS_COLOR[status]} />
+      {status === 'available' && <rect x={x + 5} y={y + 11} width={16} height={4} fill="#1c2430" />}
+      {status === 'owned' && <rect x={x + 6} y={y + 6} width={14} height={14} fill="#e7f6ee" />}
+      {status === 'rival' && <polygon points={`${x + 13},${y + 5} ${x + 21},${y + 13} ${x + 13},${y + 21} ${x + 5},${y + 13}`} fill="#f6efe6" />}
+      {status === 'locked' && (
+        <g>
+          <rect x={x + 7} y={y + 12} width={12} height={8} fill="#f4efe6" />
+          <path d={`M${x + 9},${y + 12} V${y + 8} H${x + 17} V${y + 12}`} fill="none" stroke="#f4efe6" strokeWidth={1.6} />
+        </g>
+      )}
+    </g>
+  );
+}
+
 export function BuildingGraphic({
   def,
   status,
   level,
+  detail,
   selected,
   onSelect,
   onHover,
@@ -509,21 +557,21 @@ export function BuildingGraphic({
   def: BuildingDef;
   status: Ownership;
   level: number;
+  detail: boolean;
   selected: boolean;
   onSelect: () => void;
   onHover: (event: PointerEvent<SVGGElement>) => void;
   onLeave: () => void;
 }) {
-  const mark = 46;
   return (
     <g
       className={`bld is-${status}${selected ? ' is-selected' : ''}`}
-      transform={`translate(${def.x} ${selected ? def.y - 3 : def.y})`}
+      transform={`translate(${def.x} ${def.y})`}
       data-testid={`building-${def.id}`}
       tabIndex={0}
       role="button"
       aria-pressed={selected}
-      aria-label={`${def.name}, ${status}`}
+      aria-label={`${def.name}, ${status}${status === 'owned' ? `, level ${level}` : ''}`}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
@@ -533,12 +581,12 @@ export function BuildingGraphic({
       onPointerEnter={onHover}
       onPointerLeave={onLeave}
     >
-      {renderArt(def)}
-      <polygon points={`${def.w - mark},0 ${def.w},0 ${def.w},${mark}`} fill={STATUS_COLOR[status]} />
-      {status === 'owned' && level > 1 && (
-        <text x={def.w - 8} y={16} textAnchor="end" fontSize={12} fontWeight={700} fill="#143028" fontFamily="Outfit, sans-serif">
-          {level}
-        </text>
+      <ellipse cx={def.w / 2} cy={def.h - 3} rx={def.w * 0.4} ry={5} fill="#1a2430" opacity={0.1} />
+      {renderArt(def, detail)}
+      <LevelMark w={def.w} level={status === 'owned' ? level : 1} />
+      <StatusMark status={status} w={def.w} />
+      {status === 'owned' && detail && (
+        <rect x={8} y={def.h - 10} width={10} height={4} fill="#f3d7a2" opacity={0.9} />
       )}
       <rect className="lot-outline" x={0.5} y={0.5} width={def.w - 1} height={def.h - 1} fill="transparent" />
     </g>

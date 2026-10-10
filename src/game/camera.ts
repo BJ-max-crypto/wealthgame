@@ -55,15 +55,14 @@ export function fitWorld(viewW: number, viewH: number, worldW: number, worldH: n
  * shrinking it further only opens an empty band under the HUD.
  */
 export function fitCityView(viewW: number, viewH: number, worldW: number, worldH: number): Camera {
-  const chrome = viewW < 820 ? 136 : 108;
-  const pad = 1.02;
+  const chrome = viewW < 820 ? 132 : 96;
   const full = fitWorld(viewW, viewH, worldW, worldH);
-  const heightLimited = viewH / (worldH * pad) <= viewW / (worldW * pad) + 0.0001;
-  if (heightLimited) {
-    const inset = fitWorld(viewW, Math.max(220, viewH - chrome), worldW, worldH);
-    return { ...inset, y: inset.y + chrome };
+  if (full.y >= chrome - 4) return full;
+  const inset = fitWorld(viewW, Math.max(220, viewH - chrome), worldW, worldH);
+  if (inset.zoom >= full.zoom - 0.0001) {
+    const cityBottom = full.y + worldH * full.zoom;
+    const shift = Math.min(Math.max(0, chrome - full.y), Math.max(0, viewH - cityBottom));
+    return { ...full, y: full.y + shift };
   }
-  const cityBottom = full.y + worldH * full.zoom;
-  const shift = Math.min(Math.max(0, chrome - full.y), Math.max(0, viewH - cityBottom));
-  return { ...full, y: full.y + shift };
+  return { ...inset, y: inset.y + chrome };
 }
