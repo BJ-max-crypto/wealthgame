@@ -102,7 +102,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 960,
     h: 1860,
     color: '#d5e3c8',
-    label: { x: 2920, y: 360 },
+    label: { x: 2740, y: 1700 },
   },
 ];
 

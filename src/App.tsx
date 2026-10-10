@@ -42,7 +42,7 @@ export function App() {
         {route === 'contracts' && <ContractsView />}
         {route === 'leaderboard' && <LeaderboardView />}
         {toast && (
-          <div className={`toast ${toast.kind === 'err' ? 'is-err' : 'is-ok'}`} role="status">
+          <div className={`toast ${toast.kind === 'err' ? 'is-err' : 'is-ok'}`} role="status" data-testid="toast">
             {toast.text}
           </div>
         )}

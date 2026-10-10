@@ -165,9 +165,14 @@ export function BuildingPanel({
               </p>
             ) : (
               <p>
-                Level {nextLevel} {nextOps.income > 0 ? `nets ${formatSigned(nextOps.net)} / day` : 'raises capacity'}
-                {nextOps.capacity > 0 ? ` and adds ${nextOps.capacity} storage` : ''}. Upgrading from level {upgradeFrom} costs{' '}
-                {formatMoney(cost)}.
+                Level {nextLevel}{' '}
+                {[
+                  nextOps.income > 0 ? `nets ${formatSigned(nextOps.net)} / day` : '',
+                  nextOps.capacity > 0 ? `adds ${nextOps.capacity} inventory slots` : '',
+                ]
+                  .filter(Boolean)
+                  .join(' and ')}
+                . The upgrade costs {formatMoney(cost)}.
               </p>
             )}
           </section>

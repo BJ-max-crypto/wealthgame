@@ -62,7 +62,7 @@ export function Hud({ onNavigate }: { onNavigate: (route: RouteId) => void }) {
         </button>
         <div className="stat">
           <span>Day</span>
-          <strong>{state.day}</strong>
+          <strong data-testid="day-count">{state.day}</strong>
         </div>
       </div>
 

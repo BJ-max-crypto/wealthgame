@@ -2,13 +2,17 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { BUILDINGS } from '../data/buildings';
 import { DISTRICTS, WORLD } from '../data/layout';
-import { fitWorld, frameRect, panBy, zoomAt, type Camera, type WorldRect } from '../game/camera';
+import { fitCityView, frameRect, panBy, zoomAt, type Camera, type WorldRect } from '../game/camera';
 import { districtLabel, formatMoney, propertyStatus } from '../game/economy';
 import type { GameState, Ownership } from '../game/types';
 import { BuildingGraphic } from './art';
 import { Minimap } from './Minimap';
 import { Roads } from './roads';
 import { MapDefs, Scenery } from './scenery';
+
+function fitCity(viewW: number, viewH: number): Camera {
+  return fitCityView(viewW, viewH, WORLD.width, WORLD.height);
+}
 
 const ROAD_LABELS = [
   { name: 'Broadway', x: 220, y: 676 },
@@ -49,7 +53,7 @@ export function CityMap({
       const bounds = el.getBoundingClientRect();
       if (bounds.width < 40 || bounds.height < 40) return false;
       setView({ w: bounds.width, h: bounds.height });
-      setCam(fitWorld(bounds.width, bounds.height, WORLD.width, WORLD.height));
+      setCam(fitCity(bounds.width, bounds.height));
       return true;
     };
     if (fit()) return;
@@ -93,7 +97,11 @@ export function CityMap({
   }
 
   function resetView() {
-    frame({ x: 0, y: 0, w: WORLD.width, h: WORLD.height }, 1.02);
+    const el = stageRef.current;
+    if (!el) return;
+    const bounds = el.getBoundingClientRect();
+    setSmooth(true);
+    setCam(fitCity(bounds.width, bounds.height));
   }
 
   function zoomBy(factor: number) {
@@ -125,11 +133,17 @@ export function CityMap({
   }
 
   function onPointerUp(event: ReactPointerEvent<SVGSVGElement>) {
+    const wasDrag = moved.current;
     drag.current = null;
     setPanning(false);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    if (wasDrag) return;
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const node = target instanceof Element ? target.closest('[data-testid^="building-"]') : null;
+    const id = node?.getAttribute('data-testid')?.replace(/^building-/, '') ?? null;
+    onSelect(id);
   }
 
   function showTip(event: ReactPointerEvent<SVGGElement>, id: string) {
@@ -162,14 +176,7 @@ export function CityMap({
           }}
         >
           <MapDefs />
-          <rect
-            width={WORLD.width}
-            height={WORLD.height}
-            fill="transparent"
-            onClick={() => {
-              if (!moved.current) onSelect(null);
-            }}
-          />
+          <rect width={WORLD.width} height={WORLD.height} fill="transparent" />
           <Scenery />
           <Roads />
           {BUILDINGS.map((def) => {
@@ -181,9 +188,7 @@ export function CityMap({
                 status={propertyStatus(state, def)}
                 level={owned?.level ?? 1}
                 selected={selectedId === def.id}
-                onSelect={() => {
-                  if (!moved.current) onSelect(def.id);
-                }}
+                onSelect={() => onSelect(def.id)}
                 onHover={(event) => showTip(event, def.id)}
                 onLeave={() => setTip((current) => (current?.id === def.id ? null : current))}
               />
@@ -202,7 +207,7 @@ export function CityMap({
         </div>
         {objective && (
           <p className="objective">
-            Trade on the market, then buy Night Owl Market for $580. Coffee and steel are below their usual prices.
+            Trade first, then buy Night Owl Market for $580. Coffee and steel are below their usual prices.
           </p>
         )}
       </div>
@@ -248,12 +253,20 @@ export function CityMap({
             Asher Bay
           </span>
         )}
-        {cam.zoom >= 0.7 && cam.zoom < 1.5 && (
+        {cam.zoom >= 0.55 && cam.zoom < 1.5 && (
           <span
             className="place-label"
             style={{ transform: `translate(${cam.x + 2140 * cam.zoom}px, ${cam.y + 1164 * cam.zoom}px)` }}
           >
             Exchange Square
+          </span>
+        )}
+        {cam.zoom < 1.15 && (
+          <span
+            className="place-label"
+            style={{ transform: `translate(${cam.x + 2860 * cam.zoom}px, ${cam.y + 180 * cam.zoom}px)` }}
+          >
+            North Bluff
           </span>
         )}
         {cam.zoom >= 0.95 &&

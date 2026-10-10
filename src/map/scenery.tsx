@@ -129,14 +129,17 @@ function cluster(x0: number, y0: number, cols: number, rows: number, gap: number
 }
 
 const TREES = [
-  ...cluster(2640, 150, 6, 4, 86, 1).filter((tree) => Math.hypot(tree.x - 3000, tree.y - 340) > 78),
-  ...cluster(3300, 170, 2, 4, 90, 2),
-  ...cluster(1888, 820, 2, 2, 70, 3),
-  ...cluster(2200, 820, 2, 2, 78, 4),
-  ...cluster(1880, 1088, 4, 1, 80, 5),
-  ...cluster(2620, 1080, 5, 2, 84, 2),
-  ...cluster(140, 600, 3, 1, 70, 6),
+  ...cluster(2208, 860, 2, 2, 86, 4),
+  ...cluster(1900, 1096, 3, 1, 90, 5),
+  ...cluster(2620, 1100, 4, 2, 90, 2),
+  ...cluster(160, 608, 3, 1, 78, 6),
+  ...cluster(3320, 180, 2, 3, 96, 3),
 ];
+
+const BLUFF_ALLEE = [180, 250, 420, 500].flatMap((y) => [
+  { x: 2928, y, r: 16, variant: 0 },
+  { x: 3072, y, r: 15, variant: 2 },
+]);
 
 export function Scenery() {
   return (
@@ -179,11 +182,17 @@ export function Scenery() {
       </g>
 
       <g>
+        <ellipse cx={2740} cy={250} rx={78} ry={42} fill="#6eafc0" />
+        <ellipse cx={2740} cy={250} rx={48} ry={24} fill="#d5eef3" opacity={0.35} />
         <circle cx={3000} cy={340} r={58} fill="#c9dcb8" />
         <circle cx={3000} cy={340} r={30} fill="#e7f0df" />
         <circle cx={3000} cy={340} r={30} fill="none" stroke="#8aa37a" />
         <rect x={2992} y={398} width={16} height={242} fill="#e6dcc8" />
-        <rect x={2700} y={332} width={220} height={12} fill="#e6dcc8" />
+        <rect x={2760} y={332} width={232} height={14} fill="#e6dcc8" />
+        <polygon points="3348,214 3404,180 3460,214" fill="#c4553a" />
+        <rect x={3360} y={214} width={88} height={40} fill="#f7f4ee" />
+        <rect x={3384} y={222} width={16} height={22} fill="#7eb8c9" />
+        <rect x={3416} y={222} width={14} height={32} fill="#6b4a32" />
       </g>
 
       <rect x={2588} y={1836} width={900} height={18} fill="#eadcbe" />
@@ -193,6 +202,7 @@ export function Scenery() {
       ))}
 
       <g>
+        <polygon points="1920,1744 2400,1744 2360,1900 1960,1900" fill="#cfc6b6" />
         <rect x={1848} y={1848} width={640} height={250} fill="#cfc6b6" />
         <rect x={1848} y={1848} width={640} height={8} fill="#b7ae9e" />
         {Array.from({ length: 8 }, (_, index) => (
@@ -252,6 +262,9 @@ export function Scenery() {
 
       {TREES.map((tree, index) => (
         <Tree key={index} x={tree.x} y={tree.y} r={tree.r} variant={tree.variant} />
+      ))}
+      {BLUFF_ALLEE.map((tree, index) => (
+        <Tree key={`bluff-${index}`} x={tree.x} y={tree.y} r={tree.r} variant={tree.variant} />
       ))}
       {PARKING.map((lot) => (
         <ParkingLotGraphic key={lot.id} lot={lot} />

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_ZOOM, MIN_ZOOM, clampZoom, fitWorld, frameRect, zoomAt } from './camera';
+import { MAX_ZOOM, MIN_ZOOM, clampZoom, fitCityView, fitWorld, frameRect, zoomAt } from './camera';
 
 describe('camera', () => {
   it('keeps the cursor world point fixed while zooming', () => {
@@ -30,5 +30,17 @@ describe('camera', () => {
     const top = (0 - cam.y) / cam.zoom;
     expect(left).toBeLessThanOrEqual(0);
     expect(top).toBeLessThanOrEqual(0);
+  });
+
+  it('reserves top chrome on a wide map without shrinking a tall one', () => {
+    const wide = fitCityView(1440, 780, 3600, 2200);
+    expect(wide.y).toBeGreaterThanOrEqual(100);
+    expect(wide.y + 2200 * wide.zoom).toBeLessThanOrEqual(780);
+
+    const tall = fitCityView(390, 680, 3600, 2200);
+    const full = fitWorld(390, 680, 3600, 2200);
+    expect(tall.zoom).toBeCloseTo(full.zoom);
+    expect(tall.y).toBeGreaterThanOrEqual(0);
+    expect(tall.y + 2200 * tall.zoom).toBeLessThanOrEqual(680);
   });
 });

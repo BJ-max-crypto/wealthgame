@@ -70,31 +70,32 @@ function Windows({
 
 function OfficeArt({ def, heli = false }: { def: BuildingDef; heli?: boolean }) {
   const { w, h, accent, id } = def;
-  const margin = 16;
+  const margin = 14;
   const width = w - margin * 2;
-  const faceH = Math.max(36, Math.min(h * 0.3, 86));
-  const roofH = h - faceH - margin - 18;
-  const cols = Math.max(3, Math.round(width / 26));
-  const rows = Math.max(2, Math.round(faceH / 18));
+  const faceH = Math.max(52, Math.min(h * 0.46, 150));
+  const roofH = Math.max(36, h - faceH - 28);
+  const cols = Math.max(3, Math.min(6, Math.round(width / 42)));
+  const rows = Math.max(3, Math.min(7, Math.round(faceH / 24)));
   return (
     <g>
       <rect x={0} y={0} width={w} height={h} fill={siteFill(def.districtId)} />
       <ellipse cx={w / 2 + 6} cy={h - 8} rx={width * 0.4} ry={7} fill="#1a2430" opacity={0.14} />
-      <rect x={margin} y={10} width={width} height={roofH} fill={accent} />
-      <rect x={margin} y={10} width={width} height={Math.max(6, roofH * 0.12)} fill="#ffffff" opacity={0.16} />
-      <rect x={margin + width * 0.38} y={16} width={width * 0.24} height={Math.min(18, roofH * 0.28)} fill="#243846" />
-      <rect x={margin + width * 0.68} y={18} width={16} height={11} fill="#b7c3cc" />
+      <rect x={margin + width / 2 - 3} y={0} width={5} height={18} fill="#2c333c" />
+      <rect x={margin} y={14} width={width} height={roofH} fill={accent} />
+      <rect x={margin} y={14} width={width} height={Math.max(8, roofH * 0.16)} fill="#ffffff" opacity={0.16} />
+      <rect x={margin + width * 0.36} y={20} width={width * 0.28} height={Math.min(26, roofH * 0.4)} fill="#243846" />
+      <rect x={margin + width * 0.68} y={22} width={18} height={12} fill="#b7c3cc" />
       {heli && (
         <g>
-          <circle cx={margin + width * 0.28} cy={18 + roofH * 0.48} r={15} fill="#245066" stroke="#d5e6ee" strokeWidth={1.4} />
-          <text x={margin + width * 0.28} y={23 + roofH * 0.48} textAnchor="middle" fontSize={12} fill="#e7f3f6" fontFamily="Outfit, sans-serif">
+          <circle cx={margin + width * 0.28} cy={22 + roofH * 0.55} r={16} fill="#245066" stroke="#d5e6ee" strokeWidth={1.6} />
+          <text x={margin + width * 0.28} y={27 + roofH * 0.55} textAnchor="middle" fontSize={13} fill="#e7f3f6" fontFamily="Outfit, sans-serif">
             H
           </text>
         </g>
       )}
-      <rect x={margin} y={10 + roofH} width={width} height={faceH} fill="#1a3142" />
-      <Windows id={id} x={margin} y={10 + roofH} w={width} h={faceH - 6} cols={cols} rows={rows} />
-      <rect x={margin + width / 2 - 9} y={10 + roofH + faceH - 12} width={18} height={12} fill="#c6a15a" />
+      <rect x={margin} y={14 + roofH} width={width} height={faceH} fill="#1a3142" />
+      <Windows id={id} x={margin} y={14 + roofH} w={width} h={faceH - 8} cols={cols} rows={rows} />
+      <rect x={margin + width / 2 - 10} y={14 + roofH + faceH - 14} width={20} height={14} fill="#c6a15a" />
       <rect x={margin + 8} y={h - 18} width={width - 16} height={6} fill="#d9d0c2" />
     </g>
   );
@@ -169,14 +170,14 @@ function ShopArt({ def }: { def: BuildingDef }) {
       <rect x={margin + bw * 0.62} y={18} width={18} height={10} fill="#9aa4ad" />
       <rect x={margin + bw * 0.2} y={20} width={22} height={8} fill="#b9aa96" />
       <rect x={margin} y={12 + roofH} width={bw} height={faceH} fill="#fbf6ee" />
-      <rect x={margin - 2} y={12 + roofH} width={bw + 4} height={11} fill={accent} />
+      <rect x={margin - 4} y={12 + roofH - 2} width={bw + 8} height={16} fill={accent} />
       {Array.from({ length: stripes }, (_, index) => (
         <rect
           key={index}
           x={margin - 2 + index * stripeW}
-          y={12 + roofH}
+          y={12 + roofH - 2}
           width={Math.max(1, stripeW - 1.5)}
-          height={11}
+          height={16}
           fill={index % 2 === 0 ? accent : '#f6f1e8'}
         />
       ))}
@@ -355,18 +356,21 @@ function ContainerArt({ def }: { def: BuildingDef }) {
 
 function CraneArt({ def }: { def: BuildingDef }) {
   const { w, h } = def;
-  const base = h * 0.78;
+  const base = h * 0.72;
+  const mast = w * 0.28;
   return (
     <g>
-      <rect x={8} y={base - 28} width={54} height={28} fill="#6e7580" />
-      <rect x={8} y={base - 36} width={54} height={8} fill="#9aa3ac" />
-      <rect x={w * 0.34} y={10} width={8} height={base - 6} fill="#d2b16a" />
-      <rect x={w * 0.34 - 12} y={base - 8} width={32} height={7} fill="#a6843f" />
-      <polygon points={`${w * 0.34},16 ${w - 10},36 ${w - 10},44 ${w * 0.34 + 8},26`} fill="#e0c27a" />
-      <rect x={w * 0.34 - 26} y={18} width={22} height={10} fill="#3e4654" />
-      <line x1={w - 18} y1={40} x2={w - 18} y2={base - 18} stroke="#2c333c" strokeWidth={1.5} />
-      <rect x={w - 28} y={base - 20} width={18} height={10} fill="#8a939e" />
-      <rect x={6} y={h - 14} width={w - 12} height={8} fill="#b7ae9e" />
+      <rect width={w} height={h} fill="#cfc6b6" />
+      <rect x={6} y={base - 34} width={w * 0.42} height={34} fill="#5e6772" />
+      <rect x={6} y={base - 44} width={w * 0.42} height={10} fill="#9aa3ac" />
+      <rect x={mast} y={8} width={12} height={base} fill="#e0b15a" />
+      <rect x={mast - 16} y={base - 6} width={44} height={10} fill="#a6843f" />
+      <polygon points={`${mast},14 ${w - 8},28 ${w - 8},40 ${mast + 12},28`} fill="#f0d48a" />
+      <polygon points={`${mast},22 ${mast - 36},30 ${mast - 36},40 ${mast + 12},32`} fill="#c9963e" />
+      <rect x={mast - 34} y={18} width={24} height={12} fill="#2c333c" />
+      <line x1={w - 16} y1={34} x2={w - 16} y2={base - 8} stroke="#1c2430" strokeWidth={2} />
+      <rect x={w - 28} y={base - 12} width={24} height={14} fill="#c4553a" />
+      <rect x={4} y={h - 10} width={w - 8} height={6} fill="#b7ae9e" />
     </g>
   );
 }
@@ -520,10 +524,6 @@ export function BuildingGraphic({
       role="button"
       aria-pressed={selected}
       aria-label={`${def.name}, ${status}`}
-      onClick={(event) => {
-        event.stopPropagation();
-        onSelect();
-      }}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
