@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react';
 import { PARKING, WORLD, type ParkingLot } from '../data/layout';
 
 function Tree({ x, y, r, variant }: { x: number; y: number; r: number; variant: number }) {
-  const greens = ['#6d9458', '#7ea468', '#5e854c', '#688b52'];
+  const canopy = ['#3f6b38', '#4e7c42', '#356332', '#5a8748'];
+  const leaf = ['#6fa85a', '#7eb868', '#5e984c', '#8cbc70'];
+  const shade = canopy[variant % canopy.length] ?? '#3f6b38';
+  const crown = leaf[variant % leaf.length] ?? '#6fa85a';
   return (
     <g>
-      <ellipse cx={x + 2} cy={y + r * 0.35} rx={r * 0.75} ry={r * 0.35} fill="#1a2430" opacity={0.12} />
-      <rect x={x - 1.4} y={y} width={2.8} height={r * 0.45} fill="#6b4a32" />
-      <circle cx={x} cy={y - r * 0.15} r={r} fill={greens[variant % greens.length]} />
-      <circle cx={x - r * 0.28} cy={y - r * 0.35} r={r * 0.48} fill="#c5d7a4" opacity={0.35} />
+      <ellipse cx={x + r * 0.22} cy={y + r * 0.42} rx={r * 0.95} ry={r * 0.42} fill="#102028" opacity={0.22} />
+      <circle cx={x + r * 0.08} cy={y + r * 0.06} r={r} fill={shade} />
+      <circle cx={x - r * 0.12} cy={y - r * 0.1} r={r * 0.74} fill={crown} />
+      <circle cx={x - r * 0.28} cy={y - r * 0.28} r={r * 0.36} fill="#e4f0cc" opacity={0.7} />
+      <circle cx={x + r * 0.05} cy={y + r * 0.02} r={Math.max(1.6, r * 0.12)} fill="#6a4630" />
     </g>
   );
 }
@@ -129,23 +133,47 @@ function cluster(x0: number, y0: number, cols: number, rows: number, gap: number
   return trees;
 }
 
+function streetRow(y: number, x1: number, x2: number, step: number, r: number, salt: number) {
+  const roads = [48, 920, 1760, 2500, 3180];
+  const trees = [];
+  let index = 0;
+  for (let x = x1; x <= x2; x += step) {
+    index += 1;
+    if (roads.some((road) => x > road - 28 && x < road + 78)) continue;
+    trees.push({
+      x,
+      y: y + ((index * 7 + salt) % 7) - 3,
+      r: r + (index % 3),
+      variant: (index + salt) % 4,
+    });
+  }
+  return trees;
+}
+
 const TREES = [
-  ...cluster(2208, 860, 2, 2, 86, 4),
-  ...cluster(1900, 1096, 3, 1, 90, 5),
-  ...cluster(2620, 1100, 4, 2, 90, 2),
-  ...cluster(160, 608, 3, 1, 78, 6),
-  ...cluster(3320, 180, 2, 3, 96, 3),
+  ...streetRow(624, 150, 2420, 78, 12, 1),
+  ...streetRow(732, 170, 1680, 86, 11, 2),
+  ...streetRow(732, 1900, 2420, 90, 11, 3),
+  ...cluster(2060, 900, 3, 2, 78, 4),
+  ...cluster(2620, 1080, 8, 3, 72, 2),
+  ...cluster(3050, 1180, 5, 2, 70, 5),
+  ...cluster(3000, 1640, 3, 2, 70, 1),
+  ...cluster(2640, 180, 4, 4, 78, 6),
+  ...cluster(3340, 160, 3, 5, 72, 3),
+  ...cluster(160, 560, 4, 1, 70, 6),
 ];
 
-const BLUFF_ALLEE = [180, 250, 420, 500].flatMap((y) => [
-  { x: 2928, y, r: 16, variant: 0 },
-  { x: 3072, y, r: 15, variant: 2 },
+const BLUFF_ALLEE = [160, 250, 340, 430, 520].flatMap((y) => [
+  { x: 2920, y, r: 16, variant: 0 },
+  { x: 3088, y, r: 15, variant: 2 },
 ]);
 
 export function Scenery() {
   return (
     <g className="scenery">
       <rect width={WORLD.width} height={WORLD.height} fill="url(#oceanGrad)" />
+      <rect width={WORLD.width} height={WORLD.height} fill="url(#swell)" />
+      <rect width={WORLD.width} height={WORLD.height} fill="url(#chop)" opacity={0.85} />
       <path
         d="M0,0 H3600 V1980 H2680 C2580,1960 2520,1900 2480,1860 H0 Z"
         fill="#d7cbb6"
@@ -363,6 +391,14 @@ export function MapDefs() {
         <stop offset="0%" stopColor="#f3e6c8" />
         <stop offset="100%" stopColor="#e4c98a" />
       </linearGradient>
+      <pattern id="swell" width="140" height="42" patternUnits="userSpaceOnUse">
+        <path d="M0 16 Q 35 6 70 16 T 140 16" fill="none" stroke="#e7f6fb" strokeWidth={1.7} opacity={0.55} />
+        <path d="M0 30 Q 35 22 70 30 T 140 30" fill="none" stroke="#08344c" strokeWidth={1.3} opacity={0.22} />
+      </pattern>
+      <pattern id="chop" width="260" height="78" patternUnits="userSpaceOnUse">
+        <path d="M0 46 C 50 30 90 62 140 46 S 230 30 260 46" fill="none" stroke="#ffffff" strokeWidth={2.2} opacity={0.22} />
+        <path d="M0 18 C 40 8 80 28 130 16" fill="none" stroke="#b7e4f2" strokeWidth={1.2} opacity={0.35} />
+      </pattern>
     </defs>
   );
 }

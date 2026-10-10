@@ -63,8 +63,8 @@ function Block({
   awning?: string;
   plain?: boolean;
 }) {
-  const skew = Math.min(22, Math.max(10, w * 0.08));
-  const lift = skew * 0.55;
+  const skew = Math.min(58, Math.max(20, w * 0.22));
+  const lift = skew * 0.42;
   const front: Array<[number, number]> = [
     [x, y - rise],
     [x + w, y - rise],
@@ -121,9 +121,30 @@ function Block({
       <rect key="c" x={x + w * 0.18} y={y - rise + rise * 0.2} width={Math.max(4, w * 0.12)} height={Math.max(3, rise * 0.08)} fill={lit} />,
     );
   }
+  const sidePanes =
+    plain || rise < 36
+      ? null
+      : Array.from({ length: Math.min(4, Math.max(2, Math.round(rise / 48))) }, (_, index) => {
+          const t = 0.22 + index * 0.18;
+          return (
+            <line
+              key={index}
+              x1={x + w + skew * 0.22}
+              y1={y - rise * t}
+              x2={x + w + skew * 0.78}
+              y2={y - rise * t - lift * 0.55}
+              stroke={glass}
+              strokeWidth={Math.max(2, w * 0.035)}
+              strokeLinecap="round"
+              opacity={0.7}
+            />
+          );
+        });
   return (
     <g>
+      <ellipse cx={x + w * 0.55 + skew * 0.3} cy={y + 5} rx={w * 0.46} ry={8} fill="#102028" opacity={0.2} />
       <polygon points={pts(right)} fill={side} />
+      {sidePanes}
       <polygon points={pts(front)} fill={face} />
       {panes}
       {awning && (
@@ -160,7 +181,7 @@ function Block({
 }
 
 function place(lotW: number, lotH: number, foot: number, rise: number) {
-  const skew = Math.min(22, Math.max(10, foot * 0.08));
+  const skew = Math.min(58, Math.max(20, foot * 0.22));
   const w = Math.min(foot, lotW - skew - 16);
   const x = Math.max(8, (lotW - w - skew) / 2);
   const y = lotH - 10;
