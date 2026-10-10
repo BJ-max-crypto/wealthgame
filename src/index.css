@@ -272,10 +272,11 @@ button { cursor: pointer; }
 .zoom-readout { color: #f4efe6; font-size: 11px; text-align: center; font-variant-numeric: tabular-nums; min-width: 36px; }
 .minimap-wrap {
   position: absolute;
-  left: 12px;
+  right: 12px;
   bottom: 12px;
+  left: auto;
   z-index: 3;
-  width: 168px;
+  width: 136px;
   background: rgba(16, 24, 32, 0.88);
   border: 1px solid rgba(224, 177, 90, 0.45);
   padding: 4px;

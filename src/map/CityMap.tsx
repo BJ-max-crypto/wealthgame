@@ -268,7 +268,7 @@ export function CityMap({
           </span>
         )}
         {cam.zoom >= 0.2 && cam.zoom < 1.15 && (
-          <span className="place-label" style={labelStyle(cam, 3460, 560, 28)}>
+          <span className="place-label" style={labelStyle(cam, 3280, 500, 28)}>
             North Bluff
           </span>
         )}

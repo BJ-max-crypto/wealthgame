@@ -91,7 +91,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 644,
     h: 780,
     color: '#d4cec2',
-    label: { x: 1980, y: 2148 },
+    label: { x: 1680, y: 2110 },
   },
   {
     id: 'waterfront',
@@ -102,7 +102,7 @@ export const DISTRICTS: DistrictZone[] = [
     w: 960,
     h: 1860,
     color: '#d5e3c8',
-    label: { x: 3400, y: 1080 },
+    label: { x: 3340, y: 1080 },
   },
 ];
 

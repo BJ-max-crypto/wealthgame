@@ -42,17 +42,24 @@ function clampRange(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-/** Stop a pan or zoom from leaving the city entirely off the stage. */
+function clampAxis(value: number, span: number, view: number, pinEnd: boolean): number {
+  if (span >= view - 24) {
+    const min = Math.min(0, view - span);
+    const max = Math.max(0, view - span);
+    if (pinEnd && span >= view && span - view <= 8) return min;
+    return clampRange(value, min, max);
+  }
+  const keep = Math.min(span * 0.85, Math.max(PAN_KEEP, view * 0.4));
+  return clampRange(value, keep - span, view - keep);
+}
+
+/** Keep the city on the stage. A map that can fill the view stays flush with its edges. */
 export function clampPan(cam: Camera, viewW: number, viewH: number, worldW: number, worldH: number): Camera {
   if (viewW < 1 || viewH < 1) return cam;
-  const spanX = worldW * cam.zoom;
-  const spanY = worldH * cam.zoom;
-  const keepX = Math.min(PAN_KEEP, viewW * 0.5);
-  const keepY = Math.min(PAN_KEEP, viewH * 0.5);
   return {
     zoom: cam.zoom,
-    x: clampRange(cam.x, keepX - spanX, viewW - keepX),
-    y: clampRange(cam.y, keepY - spanY, viewH - keepY),
+    x: clampAxis(cam.x, worldW * cam.zoom, viewW, false),
+    y: clampAxis(cam.y, worldH * cam.zoom, viewH, true),
   };
 }
 
@@ -73,9 +80,18 @@ export function fitWorld(viewW: number, viewH: number, worldW: number, worldH: n
 
 /**
  * Fit the whole world, shoreline included, to the stage.
- * The city and the viewport share one aspect, so this leaves only the
- * remainder on the longer axis instead of letterboxing a reserved header.
+ * A laptop-shaped view is nearly the city's aspect, so the shoreline sits on
+ * the bottom edge. A tall phone keeps the city centered, because the extra
+ * space is the only way to show the full width.
  */
 export function fitCityView(viewW: number, viewH: number, worldW: number, worldH: number): Camera {
-  return frameRect(viewW, viewH, { x: 0, y: 0, w: worldW, h: worldH }, 1);
+  const zoom = clampZoom(Math.min(viewW / worldW, viewH / worldH));
+  const spanW = worldW * zoom;
+  const spanH = worldH * zoom;
+  const slackY = Math.max(0, viewH - spanH);
+  return {
+    zoom,
+    x: (viewW - spanW) / 2,
+    y: slackY < 48 ? slackY : slackY / 2,
+  };
 }

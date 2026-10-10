@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_ZOOM, MIN_ZOOM, PAN_KEEP, clampPan, clampZoom, fitCityView, fitWorld, frameRect, zoomAt } from './camera';
+import { MAX_ZOOM, MIN_ZOOM, clampPan, clampZoom, fitCityView, fitWorld, frameRect, zoomAt } from './camera';
 
 describe('camera', () => {
   it('keeps the cursor world point fixed while zooming', () => {
@@ -42,23 +42,32 @@ describe('camera', () => {
     expect(right).toBeLessThanOrEqual(1356.01);
     expect(bottom).toBeLessThanOrEqual(838.01);
     expect(Math.min(wide.x, 1356 - right)).toBeLessThan(1);
-    expect(bottom).toBeGreaterThan(820);
+    expect(bottom).toBeCloseTo(838, 0);
+    expect(wide.y).toBeGreaterThan(4);
+    expect(wide.y).toBeLessThan(24);
 
     const tall = fitCityView(390, 680, 3600, 2200);
     expect(tall.zoom).toBeCloseTo(390 / 3600);
     expect(tall.x).toBeCloseTo(0);
     expect(tall.x + 3600 * tall.zoom).toBeLessThanOrEqual(390.01);
-    expect(tall.y).toBeGreaterThan(0);
-    expect(tall.y + 2200 * tall.zoom).toBeLessThanOrEqual(680.01);
+    const tallBottom = tall.y + 2200 * tall.zoom;
+    expect(tall.y).toBeGreaterThan(100);
+    expect(tallBottom).toBeLessThanOrEqual(680.01);
+    expect(tallBottom).toBeGreaterThan(400);
   });
 
-  it('keeps part of the city inside the viewport while panning', () => {
+  it('keeps the city flush with the stage while panning', () => {
     const shoved = clampPan({ x: -10000, y: -10000, zoom: 0.4 }, 800, 500, 3600, 2200);
-    expect(shoved.x + 3600 * 0.4).toBeGreaterThanOrEqual(PAN_KEEP);
-    expect(shoved.y + 2200 * 0.4).toBeGreaterThanOrEqual(PAN_KEEP);
+    expect(shoved.x + 3600 * 0.4).toBeCloseTo(800, 0);
+    expect(shoved.y + 2200 * 0.4).toBeCloseTo(500, 0);
 
     const other = clampPan({ x: 5000, y: 5000, zoom: 0.4 }, 800, 500, 3600, 2200);
-    expect(other.x).toBeLessThanOrEqual(800 - PAN_KEEP);
-    expect(other.y).toBeLessThanOrEqual(500 - PAN_KEEP);
+    expect(other.x).toBeCloseTo(0, 0);
+    expect(other.y).toBeCloseTo(0, 0);
+
+    const fitted = fitCityView(1356, 838, 3600, 2200);
+    const nudged = clampPan({ ...fitted, x: fitted.x - 500, y: fitted.y - 500 }, 1356, 838, 3600, 2200);
+    expect(nudged.x).toBeCloseTo(fitted.x, 0);
+    expect(Math.abs(nudged.y - fitted.y)).toBeLessThan(30);
   });
 });
