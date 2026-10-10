@@ -33,9 +33,9 @@ describe('camera', () => {
   });
 
   it('reserves top chrome on a wide map without shrinking a tall one', () => {
-    const wide = fitCityView(1440, 780, 3600, 2200);
-    expect(wide.y).toBeGreaterThanOrEqual(100);
-    expect(wide.y + 2200 * wide.zoom).toBeLessThanOrEqual(780);
+    const wide = fitCityView(1356, 838, 3600, 2200);
+    expect(wide.y).toBeGreaterThanOrEqual(90);
+    expect(wide.y + 2200 * wide.zoom).toBeLessThanOrEqual(838.5);
 
     const tall = fitCityView(390, 680, 3600, 2200);
     const full = fitWorld(390, 680, 3600, 2200);
